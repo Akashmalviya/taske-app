@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
 
+const data = 'mongodb+srv://admin:vizikAPN@ezzey.wpbj6.mongodb.net/Ezzey?retryWrites=true&w=majority'
 // Connecting to the database
-mongoose.connect('mongodb://127.0.0.1:27017/ezzy', {
+mongoose.connect(data, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
@@ -13,4 +14,3 @@ mongoose.connect('mongodb://127.0.0.1:27017/ezzy', {
    process.exit();
 });
 mongoose.set('useFindAndModify', false );
-   
