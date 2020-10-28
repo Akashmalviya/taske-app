@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
-  moblieNumber: {
+  mobileNumber: {
     type: Number,
     unique: true,
     required: true,
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
   otpVerify: {
     type: Number,
-    unique: true,
+  //  unique: true,
     trim: true,
     default: null,
   },
@@ -98,11 +98,11 @@ userSchema.methods.generateAuthToken = async function () {
   return token;
 };
 
-userSchema.statics.findByCredentials = async (moblieNumber) => {
-  const user = await User.findOne({ moblieNumber });
+userSchema.statics.findByCredentials = async (mobileNumber) => {
+  const user = await User.findOne({ mobileNumber });
 
   if (!user) {
-    const user = new User({ moblieNumber, otpVerify: generateOtp() });
+    const user = new User({ mobileNumber, otpVerify: generateOtp() });
     await user.save();
     return user;
   }
