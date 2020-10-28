@@ -9,7 +9,9 @@ const defaultResponseObject = {
 
 exports.authGateWay = async (req, res) => {
   try {
+    //console.log(req.body.mobileNumber)
     const user = await User.findByCredentials(req.body.mobileNumber);
+    
     let response = { ...defaultResponseObject };
     response.data = user;
     res.status(201).send(response);
