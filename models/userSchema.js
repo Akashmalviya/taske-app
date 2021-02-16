@@ -3,6 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+
 const otpGenerator = require("otp-generator");
 const { use } = require("../routes");
 
@@ -99,12 +100,17 @@ userSchema.methods.generateAuthToken = async function () {
 
 userSchema.statics.findByCredentials = async (mobileNumber) => {
   const user = await User.findOne({ mobileNumber });
+  console.log(user);
+  const otp = generateOtp()
+ await sendMessage(otp,mobileNumber)
 
   if (!user) {
-    const user = new User({ mobileNumber, otpVerify: generateOtp() });
-    await user.save();
-    return user;
+    
+    const user = new User({ mobileNumber, otpVerify: otp });
+    return await user.save();
+
   }
+  
   user.otpVerify = generateOtp();
   return await user.save();
 };
@@ -153,6 +159,25 @@ const generateOtp = () => {
     upperCase: false,
   });
 };
+
+
+const sendMessage = async(message,mobile)=>{
+
+  const Nexmo = require('nexmo');
+
+  const nexmo = new Nexmo({
+    apiKey: '02d9403b',
+    apiSecret: 'TFeIBph4HtVme3E8',
+  });
+  
+  const from = 'Vonage APIs';
+  const to = '919893370255';
+  const text = `otp is ${generateOtp}`;
+  
+ const data = await nexmo.message.sendSms(from, to, text)
+ console.log(data)
+}
+
 
 const User = mongoose.model("User", userSchema);
 

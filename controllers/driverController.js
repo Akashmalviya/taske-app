@@ -1,5 +1,5 @@
-const User = require("../models/userSchema");
-const Vechile = require('../models/vechile');
+const Driver = require("../models/driverSchema")
+
 
 const defaultResponseObject = {
   success: true,
@@ -10,7 +10,7 @@ const defaultResponseObject = {
 
 exports.authGateWay = async (req, res) => {
   try {
-    console.log(req.body.mobileNumber)
+    //console.log(req.body.mobileNumber)
     const user = await User.findByCredentials(req.body.mobileNumber);
     
     let response = { ...defaultResponseObject };
@@ -124,6 +124,27 @@ const logoutAll = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+
+
+exports.documentUpload  = async (req, res) =>{
+
+  console.log(req.file.path);
+  var img = req.file.path
+  const url = 'http://localhost:3000/'+img
+    res.send('file uploaded succesfully'+ url)
+}
+
+
+// router.post('/uploads', upload.array('uploads'), async(req,res) => {
+//     res.send('200')
+// })
+
 // router.get('/users/me', auth, async (req, res) => {
 //     res.send(req.user)
 // })
@@ -138,9 +159,3 @@ const logoutAll = async (req, res) => {
 //         res.status(500).send()
 //     }
 // })
-//################################
-//vehicle apis@@@@@@
-exports.category =async(req,res) => {
-  const vechile = await Vechile.insertMany({wheeler}) 
-     console.log(vechile)
-}

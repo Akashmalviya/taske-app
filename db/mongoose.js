@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const data = 'mongodb+srv://admin:vizikAPN@ezzey.wpbj6.mongodb.net/Ezzey?retryWrites=true&w=majority'
+const data = 'mongodb://127.0.0.1:27017'
 // Connecting to the database
 mongoose.connect(data, {
     useNewUrlParser: true,
@@ -14,3 +14,4 @@ mongoose.connect(data, {
    process.exit();
 });
 mongoose.set('useFindAndModify', false );
+//mongodb+srv://admin:vizikAPN@ezzey.wpbj6.mongodb.net/Ezzey?retryWrites=true&w=majority
