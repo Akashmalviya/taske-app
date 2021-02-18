@@ -22,6 +22,9 @@ const tripSchema = new mongoose.Schema({
     driverID:{
         type:mongoose.Schema.Types.ObjectId,ref: 'Driver'
     },
+    vechile:{
+        type:mongoose.Schema.Types.ObjectId,ref: 'Vehicle'
+    },
     estimateddistance:{
         type:String,
         default:""
