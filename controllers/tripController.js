@@ -3,6 +3,7 @@ const User = require("../models/userSchema");
 const Driver = require("../models/driverSchema");
 const AppError = require("../middeleware/AppError");
 const { defaultResponseObject } = require("../constants/constants");
+const DriverSchema = require("../models/driverSchema");
 
 //create A TRIP
 exports.createtrip = async (req, res, next) => {
@@ -36,68 +37,21 @@ exports.findDriver = async (req, res, next) => {
 
     const [lat, long] = trip.pickuplocation.coordinates;
 
-    const intervalObj = setInterval((call) => {
-      console.log("interviewing the interval");
-    }, 500);
-
-    const timeoutObj = setTimeout(() => {
-      clearInterval(intervalObj);
-    }, 20000);
-  } catch (e) {}
-};
-
-
-
-getDriver()
-
-
-
-function  getDriver() {
-    const findDriver = (lat,long) => new Promise(  (resolve, reject) => {
-  const intervalObj = setInterval(async() => {
-
-
-      let driver = await Driver.aggregate([{
-                            $geoNear: {
-                                "near": {
-                                    type: "Point",
-                                    coordinates: [parseFloat(lat), parseFloat(long)]
-                                },
-                                "maxDistance": 9 * 1000,
-                                "query": {
-                                    // activeStatus: "1",
-                                    // driverStatus: "1",
-
-                                },
-                                "distanceField": "distance",
-                                "includeLocs": "dist.location",
-                                "spherical": true
-                            },
-                        },
-                       
-                    ]).sort({
-                        distance: 1
-                    }).limit(1);
-                    console.log("finding driver ");
-    if (driver.length !==0 ) {
-      clearInterval(intervalObj);
-      resolve(driver);
-    }
-  }, 500);
-  const timeoutObj = setTimeout(() => {
-    timeLimit = true;
-    clearInterval(intervalObj);
-    reject("driver not found");
-    clearTimeout(timeoutObj)
-
-  }, 2000);
-});
-    findDriver(14.9734229,78.5554).then(result=>{
+      DriverSchema.findDriverByCoordinate(lat,long).then(result=>{
         console.log(result)
     }).catch(err=>{
         console.log(err)
     })
-} 
+
+    
+  } catch (e) {
+      console.log(e.message);
+  }
+};
+
+
+
+
 
 // view all trip
 exports.getalltrip = async (req, res, next) => {

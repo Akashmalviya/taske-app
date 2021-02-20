@@ -275,6 +275,45 @@ driverSchema.statics.findByCredentials = async (mobileNumber) => {
     return data
 
   }
+
+
+  driverSchema.static.findDriverByCoordinate =  (lat,long) => new Promise(  (resolve, reject) => {
+  const intervalObj = setInterval(async() => {
+      let driver = await Driver.aggregate([{
+                            $geoNear: {
+                                "near": {
+                                    type: "Point",
+                                    coordinates: [parseFloat(lat), parseFloat(long)]
+                                },
+                                "maxDistance": 9 * 1000,
+                                "query": {
+                                    // activeStatus: "1",
+                                    // driverStatus: "1",
+
+                                },
+                                "distanceField": "distance",
+                                "includeLocs": "dist.location",
+                                "spherical": true
+                            },
+                        },
+                       
+                    ]).sort({
+                        distance: 1
+                    }).limit(1);
+                    console.log("finding driver ");
+    if (driver.length !==0 ) {
+      clearInterval(intervalObj);
+      resolve(driver);
+    }
+  }, 500);
+  const timeoutObj = setTimeout(() => {
+    timeLimit = true;
+    clearInterval(intervalObj);
+    reject("driver not found");
+    clearTimeout(timeoutObj)
+
+  }, 2000);
+});
   
   driver.otpVerify = generateOtp();
   return await driver.save();
