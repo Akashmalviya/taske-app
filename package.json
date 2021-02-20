@@ -6,7 +6,7 @@
     "start": "NODE_ENV=production node ./bin/www",
     "staging": "NODE_ENV=staging node ./bin/www",
     "dev": "nodemon ./bin/www",
-    "deploy": "git add . && git commit -m 'updation' && git push heroku master"
+    "deploy": "git add . && git commit -m 'updation' && git push origin master"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

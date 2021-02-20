@@ -1,4 +1,4 @@
-const Driver = require("../models/driverSchema")
+const DriverSchema = require("../models/driverSchema");
 
 
 const defaultResponseObject = {
@@ -11,12 +11,38 @@ const defaultResponseObject = {
 exports.authGateWay = async (req, res) => {
   try {
     //console.log(req.body.mobileNumber)
-    const user = await User.findByCredentials(req.body.mobileNumber);
+    let driver = await DriverSchema.findByCredentials(req.body.mobileNumber);
+    console.log(driver);
+    driver.location = req.body.location
+   driver = await driver.save()
+
+    driver = await DriverSchema.aggregate([{
+                            $geoNear: {
+                                "near": {
+                                    type: "Point",
+                                    coordinates: [parseFloat(22.9734229), parseFloat(78.6568942)]
+                                },
+                                "maxDistance": 9 * 1000,
+                                "query": {
+                                    // activeStatus: "1",
+                                    // driverStatus: "1",
+
+                                },
+                                "distanceField": "distance",
+                                "includeLocs": "dist.location",
+                                "spherical": true
+                            },
+                        },
+                       
+                    ]).sort({
+                        distance: 1
+                    }).limit(1);
     
     let response = { ...defaultResponseObject };
-    response.data = user;
+    response.data = driver;
     res.status(201).send(response);
   } catch (e) {
+    console.log(e);
     let response = { ...defaultResponseObject };
     response.error = e;
     response.success = false;
@@ -26,11 +52,11 @@ exports.authGateWay = async (req, res) => {
 
 exports.verifyOtp = async (req, res) => {
   try {
-    const user = await User.userOtpVerify(req.body._id, req.body.otpVerify);
-    const token = await user.generateAuthToken();
+    const driver = await DriverSchema.userOtpVerify(req.body._id, req.body.otpVerify);
+    const token = await driver.generateAuthToken();
 
     let response = { ...defaultResponseObject };
-    response.data = user;
+    response.data = driver;
 
     response.token = token;
 
