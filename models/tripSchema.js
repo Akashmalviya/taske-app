@@ -139,6 +139,20 @@ const tripSchema = new mongoose.Schema({
     usercomment:{
         type:String,
         default:""
+    },
+
+    //Review and Rating
+
+    title:{
+        type:String
+    },
+    description: {
+        type:String
+    },
+    rating:{
+        type:Number,
+        default:null
+        
     }
 
 

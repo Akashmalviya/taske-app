@@ -43,7 +43,7 @@ if(!paymentDetails.amount || !paymentDetails.customerId || !paymentDetails.custo
 
 
     checksum_lib.genchecksum(params, config.PaytmConfig.key, function (err, checksum) {
-        var txn_url = "https://securegw-stage.paytm.in/theia/processTransaction"; // for staging
+        var txn_url = "https://securegw-stage.paytm.in/theia/proceTransaction"; // for staging
         // var txn_url = "https://securegw.paytm.in/theia/processTransaction"; // for production
 
         var form_fields = "";

@@ -1,7 +1,12 @@
-// var express = require('express');
-// const vechile = require('../models/vechile')
-// const user = require('../controllers/UserControllers')
+ var express = require('express');
+ const VechileController = require('../controllers/vechileController')
 
-// var router = express.Router();
+ var router = express.Router();
 
-// //router.post('/cat', UserControllers.ca);
+router.post('/category', VechileController.Vehicletype);
+router.post('/capacity', VechileController.VehicleCapacity);
+router.get('/viewall',VechileController.viewAll);
+router.delete('/delete/:id',VechileController.delete);
+router.patch('/updateVechile/:id', VechileController.update);
+
+module.exports = router;

@@ -52,6 +52,8 @@ app.use('/', indexRouter);
 app.use('/api', usersRouter);
 app.use('/driver', driverRouter);
 app.use('/trip', tripRouter);
+app.use('/vechile', vechileRouter);
+
 //app.use('/category',vechileRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

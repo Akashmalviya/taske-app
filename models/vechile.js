@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const vehicleSchema = new mongoose.Schema({
+const VehicleSchema = new mongoose.Schema({
     //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     //  vechile{
     //     type
@@ -32,10 +32,6 @@ const vehicleSchema = new mongoose.Schema({
 
 })
 
- vehicleSchema.methods.category = async(wheeler)=> {
-    const vechile = this;
+const Vehicle = mongoose.model('Vehicle', VehicleSchema)
 
- }
-const Vehicle = mongoose.model('vehicle', vehicleSchema)
-
-exports.module = vehicleSchema
+module.exports = Vehicle

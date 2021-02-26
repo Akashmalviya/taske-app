@@ -4,11 +4,12 @@ const Driver = require("../models/driverSchema");
 const AppError = require("../middeleware/AppError");
 const { defaultResponseObject } = require("../constants/constants");
 const DriverSchema = require("../models/driverSchema");
+const { AwsInstance } = require("twilio/lib/rest/accounts/v1/credential/aws");
 
 //create A TRIP
 exports.createtrip = async (req, res, next) => {
   try {
-    const userID = req.user._id;
+    const userID = req.params._id;
 
     console.log(userID);
     const trip = await Trip.create({ ...req.body, userID });
@@ -188,4 +189,93 @@ exports.changestatus = async (req, res, next) => {
   } catch (e) {
     res.status(400).send(e);
   }
+};
+
+
+exports.CreateReview = async(req,res) => {
+  try{
+    const tripId = req.params._id;
+    console.log(tripId);
+    const check = await Trip.findById(tripId)
+
+    if(!check){
+
+        res.status(400).send('invalid trip')
+    }
+    if(check.rating !== null){
+      res.send("done")
+    }
+    const review = await Trip.findOneAndUpdate({_id:tripId}, {...req.body})
+
+
+    let response = {...defaultResponseObject}
+    response.data = review
+    res.status(201).send(response)
+    }catch(e){
+        let response = {...defaultResponseObject}
+        response.error =e
+        response.success = false
+
+        res.status(400).send(response)
+    }
+
+};
+
+exports.ViewReview = async(req,res) => {
+  try{
+
+  const viewall = await Trip.find({}, 'title description rating', function (err, docs){
+
+  let response = {...defaultResponseObject}
+  response.data = docs
+  res.status(200).send(response)
+  })
+
+}catch(e){
+  let response = {...defaultResponseObject}
+  response.error = e
+  response.success = false
+
+  res.status(400).send(response)
+}
+};
+
+exports.ReviewById = async(req,res) => {
+  try{
+  const reviewId = req.params.reviewId
+  const check = await Trip.findById(reviewId)
+
+  if(!check){
+    res.status(400).send('invalid review')
+  }
+  const viewbyid = await Trip.findById(reviewId)
+  let response = {...defaultResponseObject}
+  response.data = viewbyid
+  res.status(200).send(response)
+}catch(e){
+  let response = {...defaultResponseObject}
+  response.error = e
+  response.success = false
+  res.status(400).send(response)
+}
+};
+
+exports.DeleteReview = async(req,res) => {
+  try{
+  const reviewId = req.params.reviewId
+  const check = await Trip.findById(reviewId)
+
+  if(!check){
+    res.status(400).send('invalid review')
+  }
+  const DeleteReview = await Trip.findByIdAndDelete(reviewId)
+  let response = {...defaultResponseObject}
+  response.data = DeleteReview
+  res.status(200).send(response)
+}catch(e){
+  let response = {...defaultResponseObject}
+  response.error = e 
+  response.success = false
+  res.status(400).send(response)
+}
 };
