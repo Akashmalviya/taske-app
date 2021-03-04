@@ -1,1 +1,1 @@
-exports.tripEnum = ['open','accepted','inprogress','cancel'];
+exports.tripEnum = ['open','accepted', 'arrived','inprogress', 'delivered','cancel'];

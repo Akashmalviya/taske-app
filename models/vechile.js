@@ -1,14 +1,6 @@
 const mongoose = require("mongoose");
 const vehicleSchema = new mongoose.Schema({
-    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    //  vechile{
-    //     type
-    //     capacity
-    //     wheeler
-    //     min. fare(per km)
-    //     exe. fare(extra per km)
-
-    // }@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   
     type:{
         type:String,
 
@@ -17,7 +9,7 @@ const vehicleSchema = new mongoose.Schema({
         type:String,
 
     },
-    Min_FAre:{
+    Min_Fare:{
         type:Number,
 
     },
@@ -28,7 +20,6 @@ const vehicleSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
       }
-//post and get
 
 })
 
@@ -36,6 +27,6 @@ const vehicleSchema = new mongoose.Schema({
     const vechile = this;
 
  }
-const Vehicle = mongoose.model('vehicle', vehicleSchema)
+const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 
 exports.module = vehicleSchema

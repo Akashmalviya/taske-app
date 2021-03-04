@@ -1,21 +1,19 @@
 const Trip = require("../models/tripSchema");
-const User = require("../models/userSchema");
-const Driver = require("../models/driverSchema");
 const AppError = require("../middeleware/AppError");
 const { defaultResponseObject } = require("../constants/constants");
 const DriverSchema = require("../models/driverSchema");
+const { tripEnum } = require("../constants/tripstatus");
+
 
 //create A TRIP
 exports.createtrip = async (req, res, next) => {
   try {
     const userID = req.user._id;
 
-    console.log(userID);
+    // console.log(userID);
     const trip = await Trip.create({ ...req.body, userID });
     console.log(trip);
-    if (!trip) {
-      new Error("Something went wrong!!");
-    }
+    if (!trip)  throw new Error("Something went wrong!!");
     let response = { ...defaultResponseObject };
     response.data = trip;
     res.status(201).send(response);
@@ -29,27 +27,52 @@ exports.createtrip = async (req, res, next) => {
 
 exports.findDriver = async (req, res, next) => {
   try {
+    const io = req.app.io
     const tripId = req.params.tripId;
     const trip = await Trip.findById(tripId);
-    if (!trip) {
-      new Error("trip not found");
-    }
-
     const [lat, long] = trip.pickuplocation.coordinates;
+    let driver = await DriverSchema.findDriverByCoordinate(lat, long)
+    //  console.log( "driver ---------------->",driver);
 
-      DriverSchema.findDriverByCoordinate(lat,long).then(result=>{
-        console.log(result)
-    }).catch(err=>{
-        console.log(err)
-    })
+    let newTripData = await Trip.findByIdAndUpdate(tripId, { driverID: driver._id, tripStatus: tripEnum[1] ,tripAcceptedDate:Date.now()}, { new: true })
 
-    
+    io.to(trip.userID).emit('searchDriver', { driver,trip: newTripData});
+
+    let response = { ...defaultResponseObject };
+    response.data = newTripData;
+    res.status(201).send(response);
+
   } catch (e) {
-      console.log(e.message);
+    // console.error("error---->", e);
+    let response = { ...defaultResponseObject };
+    response.error = e.message || e;
+    response.success = false;
+    res.status(400).send(response);
   }
 };
 
+exports.pickUpTripItem = async  (req, res, next) => {
+    try {
+    const tripId = req.params.tripId;
+    const otp  = req.query.otp;
+    const trip = await Trip.find({_id :tripId , driverID :req.user._id} , { tripStatus: tripEnum[2] });
+    if(!trip) throw new Error("Order not found!!");
+    if(otp !== trip.pickUpOtp) throw new Error("Invaild OTP!!")
 
+    let newTripData = await Trip.findByIdAndUpdate(tripId, {tripStatus: tripEnum[3] , pickUpOtpVerfied:true, tripPicupDate :Date.now() }, { new: true })
+    io.to(trip.userID).emit('tripEvent', { trip: newTripData , message :"Trip started"});
+    let response = { ...defaultResponseObject };
+    response.data = newTripData;
+    res.status(201).send(response);
+    } catch (e) {
+    // console.error("error---->", e);
+    let response = { ...defaultResponseObject };
+    response.error = e.message || e;
+    response.success = false;
+    res.status(400).send(response);
+    }
+
+}
 
 
 
@@ -71,46 +94,49 @@ exports.getalltrip = async (req, res, next) => {
 };
 
 //get a trip by id
-exports.gettrip = async (req, res, next) => {
+exports.viewTripDetails = async (req, res, next) => {
   try {
     const tripid = req.params._id;
     const gettrip = await Trip.findById(tripid);
 
-    if (!gettrip) {
-      res.status(400).json({
-        status: "fail",
-      });
-    }
-    res.status(200).json({
-      status: "success",
-      gettrip,
-    });
+    if (!gettrip) throw new Error("Order not found!!")
+
+     let response = { ...defaultResponseObject };
+    response.data = gettrip;
+    res.status(201).send(response);
+   
   } catch (e) {
-    res.status(400).send(e);
+    let response = { ...defaultResponseObject };
+    response.error = e.message || e;
+    response.success = false;
+    res.status(400).send(response);
   }
 };
 
 //cancel trip
 
-exports.canceltrip = async (req, res, next) => {
+exports.cancelTrip = async (req, res, next) => {
   try {
     const tripid = req.params._id;
     const check = await Trip.findById(tripid);
 
-    if (!check) {
-      return next(new AppError("no trip found", 404));
-    }
+    if (!check) throw new Error("Order not found")
     const result = await Trip.findByIdAndUpdate(
       tripid,
-      { status: "cancel" },
+      { tripStatus: tripEnum[4]  },
       { new: true }
     );
-    res.status(201).json({
-      status: "sucess",
-      result,
-    });
+
+    let response = { ...defaultResponseObject };
+    response.data = result;
+    res.status(201).send(response);
+   
   } catch (e) {
-    res.status(400).send(e);
+    // console.error("error---->", e);
+    let response = { ...defaultResponseObject };
+    response.error = e.message || e;
+    response.success = false;
+    res.status(400).send(response);
   }
 };
 
@@ -165,27 +191,4 @@ exports.changepresentlocation = async (req, res, next) => {
   }
 };
 
-exports.changestatus = async (req, res, next) => {
-  try {
-    const tripstatus = req.body.status;
-    console.log(tripstatus);
-    if (!tripstatus) {
-      return next(new AppError("give a valid status"), 404);
-    }
-    const tripid = req.params._id;
-    console.log(tripid);
-    const result = await Trip.findById(tripid);
-    if (!result) {
-      return next(new AppError("cannot find trip"), 404);
-    }
-    console.log(result);
-    result.tripStatus = tripstatus;
-    const updatedstatus = await result.save();
-    res.status(200).json({
-      status: "success",
-      updatedstatus,
-    });
-  } catch (e) {
-    res.status(400).send(e);
-  }
-};
+

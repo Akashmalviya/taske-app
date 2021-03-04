@@ -11,6 +11,7 @@ const auth = async (req, res, next) => {
         var user
         if(decoded.role === 'user'){
          user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
+         console.log(user);
         }
          if(decoded.role === 'driver'){
          user = await DriverSchema.findOne({ _id: decoded._id, 'tokens.token': token })

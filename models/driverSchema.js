@@ -116,10 +116,10 @@ const driverSchema = new mongoose.Schema({
       }
     },
   },
-   location: {
-        type: { type: String, default: "Point" },
-        coordinates: { type: [Number] , index: '2dsphere'}
-    },
+  location: {
+    type: { type: String, default: "Point" },
+    coordinates: { type: [Number], index: '2dsphere' }
+  },
   drivingLicense: {
     type: String,
     default: "",
@@ -262,66 +262,72 @@ driverSchema.methods.generateAuthToken = async function () {
 driverSchema.statics.findByCredentials = async (mobileNumber) => {
   const driver = await DriverSchema.findOne({ mobileNumber });
   const otp = generateOtp()
-//  await sendMessage(otp,mobileNumber)
+  //  await sendMessage(otp,mobileNumber)
 
   if (!driver) {
-    
-     const Driver = new DriverSchema({ mobileNumber, otpVerify: otp });
-     console.log(Driver);
 
-  let data = await Driver.save();
-  console.log('driver--------',data);
+    const Driver = new DriverSchema({ mobileNumber, otpVerify: otp });
+    console.log(Driver);
+
+    let data = await Driver.save();
+    console.log('driver--------', data);
 
     return data
 
   }
 
 
-  driverSchema.static.findDriverByCoordinate =  (lat,long) => new Promise(  (resolve, reject) => {
-  const intervalObj = setInterval(async() => {
-      let driver = await Driver.aggregate([{
-                            $geoNear: {
-                                "near": {
-                                    type: "Point",
-                                    coordinates: [parseFloat(lat), parseFloat(long)]
-                                },
-                                "maxDistance": 9 * 1000,
-                                "query": {
-                                    // activeStatus: "1",
-                                    // driverStatus: "1",
 
-                                },
-                                "distanceField": "distance",
-                                "includeLocs": "dist.location",
-                                "spherical": true
-                            },
-                        },
-                       
-                    ]).sort({
-                        distance: 1
-                    }).limit(1);
-                    console.log("finding driver ");
-    if (driver.length !==0 ) {
-      clearInterval(intervalObj);
-      resolve(driver);
-    }
-  }, 500);
-  const timeoutObj = setTimeout(() => {
-    timeLimit = true;
-    clearInterval(intervalObj);
-    reject("driver not found");
-    clearTimeout(timeoutObj)
 
-  }, 2000);
-});
-  
   driver.otpVerify = generateOtp();
   return await driver.save();
 };
 
+driverSchema.statics.findDriverByCoordinate = (lat, long) => new Promise((resolve, reject) => {
+  const intervalObj = setInterval(async () => {
+    let driver = await DriverSchema.aggregate([{
+      $geoNear: {
+        "near": {
+          type: "Point",
+          coordinates: [parseFloat(lat), parseFloat(long)]
+        },
+        "maxDistance": 9 * 1000,
+        "query": {
+          // activeStatus: "1",
+          // driverStatus: "1",
+
+        },
+        "distanceField": "distance",
+        "includeLocs": "dist.location",
+        "spherical": true
+      },
+    },
+
+    ]).sort({
+      distance: 1
+    }).limit(1);
+    console.log("finding driver ");
+    if (driver.length !== 0) {
+       resolve(driver[0]);
+      clearInterval(intervalObj);
+       clearTimeout(timeoutObj)
+     
+    }
+  }, 1000);
+  const timeoutObj = setTimeout(() => {
+   
+    reject("driver not found");
+    clearInterval(intervalObj);
+
+    clearTimeout(timeoutObj)
+
+  }, 20000);
+});
+
+
 driverSchema.statics.userOtpVerify = async (id, otp) => {
   const driver = await DriverSchema.findOne({ _id: id, otpVerify: otp });
-  if (!driver) {throw new Error("User not found");}
+  if (!driver) { throw new Error("User not found"); }
   driver.otpVerify = null;
   return await driver.save();
 };
@@ -330,7 +336,7 @@ driverSchema.statics.verifyPassword = async (id, password) => {
   const driver = await DriverSchema.findById(id)
 
   if (!driver) {
-      throw new Error('Unable to login')
+    throw new Error('Unable to login')
   }
 
   const isMatch = await bcrypt.compare(password, driver.password)
@@ -338,7 +344,7 @@ driverSchema.statics.verifyPassword = async (id, password) => {
   console.log(driver)
 
   if (!isMatch) {
-      throw new Error('Unable to login')
+    throw new Error('Unable to login')
   }
 
   return driver

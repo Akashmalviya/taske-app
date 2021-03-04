@@ -8,8 +8,7 @@ const tripSchema = new mongoose.Schema({
         default:""
     },
     pickuptime:{
-        type:Number,
-        default:""
+        type:Date,
     },
     dropuptime:{
         type:Number,
@@ -46,6 +45,10 @@ const tripSchema = new mongoose.Schema({
         coordinates: { type: [Number] , index: '2dsphere'}
     },
     dropuplocation: {
+        type: { type: String, default: "Point" },
+        coordinates: { type: [Number] , index: '2dsphere'}
+    },
+     currentlocation: {
         type: { type: String, default: "Point" },
         coordinates: { type: [Number] , index: '2dsphere'}
     },
@@ -124,10 +127,27 @@ const tripSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    pickUpOtp:{
+        type:Number,
+        default:null
+    },
+    pickUpOtpVerfied:{
+        type: Boolean,
+        default: false
+    },
     isDropoffArrived:{
         type: Boolean,
         default: false
     },
+       DropoffOtp:{
+        type:Number,
+        default:null
+    },
+      DropoffOtpVerfied:{
+         type: Boolean,
+        default: false
+    },
+
     statusflag:{
         type:Boolean,
         default:false
