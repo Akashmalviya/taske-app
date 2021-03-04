@@ -8,7 +8,7 @@ const { tripEnum } = require("../constants/tripstatus");
 //create A TRIP
 exports.createtrip = async (req, res, next) => {
   try {
-    const userID = req.user._id;
+    const userID = req.params._id;
 
     // console.log(userID);
     const trip = await Trip.create({ ...req.body, userID });
@@ -190,5 +190,4 @@ exports.changepresentlocation = async (req, res, next) => {
     res.status(404).send(e);
   }
 };
-
 

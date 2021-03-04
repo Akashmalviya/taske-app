@@ -23,10 +23,6 @@ const vehicleSchema = new mongoose.Schema({
 
 })
 
- vehicleSchema.methods.category = async(wheeler)=> {
-    const vechile = this;
-
- }
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 
 exports.module = vehicleSchema

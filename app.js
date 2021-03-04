@@ -137,7 +137,7 @@ app.io = io.sockets.on("connection", (socket) => {
     }
   );
 
-  socket.on("orderTracking", ({ tripId, driverId, driverCoordinates })=>{
+  socket.on("orderTracking", async ({ tripId, driverId, driverCoordinates })=>{
  let driver = await DriverSchema.findByIdAndUpdate(
         driverId,
         { location: driverCoordinates },

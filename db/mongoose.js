@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const data = 'mongodb://127.0.0.1:27017/ezzey'
+const data = 'mongodb://127.0.0.1:27017/EEzzey'
 // Connecting to the database
 mongoose.connect(data, {
     useNewUrlParser: true,
