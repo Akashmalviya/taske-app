@@ -117,7 +117,7 @@ userSchema.statics.findByCredentials = async (mobileNumber) => {
 
 userSchema.statics.userOtpVerify = async (id, otp) => {
   const user = await User.findOne({ _id: id, otpVerify: otp });
-  if (!user) {throw new Error("User not found");}
+  if (!user) {throw new Error("Invalid OTP");}
   user.otpVerify = null;
   return await user.save();
 };

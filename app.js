@@ -1,6 +1,7 @@
 const createError = require("http-errors");
 const express = require("express");
 const app = express();
+const cors = require('cors');
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -37,27 +38,42 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-require("./middeleware/cros")(app);
+// require("./middeleware/cros")(app);
+
+const allowedOrigins = [
+  'capacitor://localhost',
+  'ionic://localhost',
+  'http://localhost',
+  'http://localhost:8080',
+  'http://localhost:8100',
+  
+];
+
+// Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origin not allowed by CORS'));
+    }
+  }
+}
+
+// Enable preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+
 
 /**
  * Swagger API Doc
  */
-const swaggerDocument = YAML.load("swagger.yaml");
-var options = {
-  swaggerOptions: {
-    validatorUrl: null,
-  },
-};
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, options)
-);
 
-app.use("/", indexRouter);
-app.use("/api", usersRouter);
-app.use("/driver", driverRouter);
-app.use("/trip", tripRouter);
+
+app.use("/api/index", indexRouter);
+app.use("/api/user", cors(corsOptions), usersRouter);
+app.use("/api/driver", cors(corsOptions), driverRouter);
+app.use("/api/trip", cors(corsOptions), tripRouter);
 //app.use('/category',vechileRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

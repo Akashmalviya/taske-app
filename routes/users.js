@@ -9,8 +9,8 @@ var router = express.Router();
 router.post('/login', UserControllers.authGateWay);
 router.post('/verifyOtp', UserControllers.verifyOtp);
 router.post('/verifyPassword', UserControllers.verifyPassword);
-router.patch('/completeProfile',auth, UserControllers.completeProfile);
-router.post('/logout',auth, UserControllers.logout)
+router.put('/completeProfile',auth, UserControllers.completeProfile);
+router.get('/logout',auth, UserControllers.logout)
 module.exports = router;
 
 

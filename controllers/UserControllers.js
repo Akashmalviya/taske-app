@@ -37,7 +37,7 @@ exports.verifyOtp = async (req, res) => {
     return res.status(201).send(response);
   } catch (e) {
     let response = { ...defaultResponseObject };
-    response.error = e;
+    response.error = e.message || e;
     response.success = false;
     res.status(400).send(response);
   }
@@ -69,9 +69,7 @@ exports.completeProfile = async (req, res) => {
       allowedUpdates.includes(update)
     );
   
-    if (!isValidOperation) {
-      return res.status(400).send({ error: "Invalid updates!" });
-    }
+  
   
     try {
       updates.forEach((update) => (req.user[update] = req.body[update]));
@@ -108,10 +106,15 @@ exports.logout = async (req, res) => {
     });
     await req.user.save();
 
-    res.send('logout success!!');
-  } catch (e) {
-    res.status(500).send();
-  }
+    let response = { ...defaultResponseObject };
+      response.data = req.user;
+        return res.status(201).send(response);
+    } catch (e) {
+        let response = { ...defaultResponseObject };
+        response.error = e.message || e;
+        response.success = false;
+        res.status(400).send(response);
+    }
 };
 
 const logoutAll = async (req, res) => {
