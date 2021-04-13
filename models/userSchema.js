@@ -1,184 +1,135 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose')
+const validator = require('validator')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const Post = require('./postSchema')
 
-
-const otpGenerator = require("otp-generator");
-const { use } = require("../routes");
 
 const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    trim: true,
-  },
-  lastName: {
-    type: String,
-    trim: true,
-  },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email is invalid");
-      }
-    },
-  },
-  mobileNumber: {
-    type: Number,
-    unique: true,
-    required: true,
-    trim: true,
-    validate(value) {
-      if (value.toString().length !== 10) {
-        throw new Error("Invalid mobile number");
-      }
-    },
-  },
-  otpVerify: {
-    type: Number,
-  //  unique: true,
-    trim: true,
-    default: null,
-  },
-  user_type: {
-    type: String,
-    enum: ["admin", "driver", "user"],
-    required: true,
-    default: "user",
-  },
-  profileCompleted: {
-    type: Boolean,
-    default: false,
-  },
-  password: {
-    type: String,
-    minlength: 7,
-    trim: true,
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error('Password cannot contain "password"');
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
+    name: {
         type: String,
-      },
+        required: true,
+        trim: true
     },
-  ],
-});
+    email: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true,
+        lowercase: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid')
+            }
+        }
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 7,
+        trim: true,
+        validate(value) {
+            if (value.toLowerCase().includes('password')) {
+                throw new Error('Password cannot contain "password"')
+            }
+        }
+    },
+    role:{
+      type:String,
+      enum:['user','admin'],
+      default:'user'
+    },
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
+})
 
-// userSchema.virtual('tasks', {
-//     ref: 'Task',
-//     localField: '_id',
-//     foreignField: 'owner'
-// })
+userSchema.virtual('posts', {
+    ref: 'Post',
+    localField: '_id',
+    foreignField: 'owner'
+})
 
 userSchema.methods.toJSON = function () {
-  const user = this;
-  const userObject = user.toObject();
+    const user = this
+    const userObject = user.toObject()
 
-  delete userObject.password;
-  delete userObject.tokens;
+    delete userObject.password
+    delete userObject.tokens
 
-  return userObject;
-};
+    return userObject
+}
 
 userSchema.methods.generateAuthToken = async function () {
-  const user = this;
-  const token = jwt.sign({ _id: user._id.toString() , role :'user' }, "thisismynewcourse");
+    const user = this
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
 
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
+    user.tokens = user.tokens.concat({ token })
+    await user.save()
 
-  return token;
-};
+    return token
+}
 
-userSchema.statics.findByCredentials = async (mobileNumber) => {
-  const user = await User.findOne({ mobileNumber });
-  console.log(user);
-  const otp = generateOtp()
- await sendMessage(otp,mobileNumber)
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email })
 
-  if (!user) {
-    
-    const user = new User({ mobileNumber, otpVerify: otp });
-    return await user.save();
+    if (!user) {
+        throw new Error('Unable to login')
+    }
 
-  }
-  
-  user.otpVerify = generateOtp();
-  return await user.save();
-};
+    const isMatch = await bcrypt.compare(password, user.password)
 
-userSchema.statics.userOtpVerify = async (id, otp) => {
-  const user = await User.findOne({ _id: id, otpVerify: otp });
-  if (!user) {throw new Error("Invalid OTP");}
-  user.otpVerify = null;
-  return await user.save();
-};
+    if (!isMatch) {
+        throw new Error('Unable to login')
+    }
 
-userSchema.statics.verifyPassword = async (id, password) => {
-  const user = await User.findById(id)
-
-  if (!user) {
-      throw new Error('Unable to login')
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password)
-  console.log(isMatch)
-  console.log(user)
-
-  if (!isMatch) {
-      throw new Error('Unable to login')
-  }
-
-  return user
+    return user
 }
 
 // Hash the plain text password before saving
-userSchema.pre("save", async function (next) {
-  const user = this;
+userSchema.pre('save', async function (next) {
+    const user = this
 
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 8);
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8)
+    }
+
+    next()
+})
+
+userSchema.post('save', function(error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    next(new Error('Email must be unique'));
+  } else {
+    next(error);
   }
-
-  next();
 });
 
-const generateOtp = () => {
-  return otpGenerator.generate(4, {
-    digits: true,
-    alphabets: false,
-    specialChars: false,
-    upperCase: false,
-  });
-};
+// Delete user tasks when user is removed
+userSchema.pre('remove', async function (next) {
+    const user = this
+    await Post.deleteMany({ owner: user._id })
+    next()
+})
 
 
-const sendMessage = async(message,mobile)=>{
-
-  const Nexmo = require('nexmo');
-
-  const nexmo = new Nexmo({
-    apiKey: '02d9403b',
-    apiSecret: 'TFeIBph4HtVme3E8',
-  });
-  
-  const from = 'Vonage APIs';
-  const to = '919893370255';
-  const text = `otp is ${generateOtp}`;
-  
- const data = await nexmo.message.sendSms(from, to, text)
- console.log(data)
-}
 
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema)
 
-module.exports = User;
+ User.findOne({ role: 'admin' }, function async (err, user) {
+        // console.log('user : ', user);
+        if (!user) {
+           let user = new User({
+             name : "Akash Malviya",
+             email : "admin@gmail.com",
+             password:"12345678"
+           })
+           user.save();
+        }
+    });
+
+module.exports = User

@@ -1,0 +1,24 @@
+<h1 mat-dialog-title>Add New Post</h1>
+<div mat-dialog-content class="example-form">
+  <form #f="ngForm"  novalidate>
+  <mat-form-field appearance="fill"  class="example-full-width">
+    <mat-label>Title</mat-label>
+    <input name="post_title" ngModel required #post_title="ngModel" [errorStateMatcher]="matcher" matInput>
+    <mat-error *ngIf="post_title.required">
+      Please enter Title
+    </mat-error>
+  </mat-form-field>
+  <mat-form-field appearance="fill"  class="example-full-width">
+    <mat-label>Body</mat-label>
+    <textarea  name="postBody" ngModel required #post_body="ngModel" [errorStateMatcher]="matcher" matInput></textarea>
+    <mat-error *ngIf="post_body.required">
+      Please enter body.
+    </mat-error>
+  </mat-form-field>
+    <button (click)="createPost(f)" type="button" class="btn btn-primary mb-4">Save</button>
+  </form>
+</div>
+<div mat-dialog-actions>
+
+<button type="button" mat-dialog-close class="btn btn-secondary">Cancel</button>
+</div>

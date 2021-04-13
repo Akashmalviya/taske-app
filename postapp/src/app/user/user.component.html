@@ -1,0 +1,17 @@
+<app-header (newItemEvent)="getPost()"></app-header>
+
+<div class="container mt-5">
+  <div class="card">
+<mat-list>
+
+  <div mat-subheader>Post</div>
+  <mat-list-item *ngFor="let note of listData; let i = index">
+
+    <div mat-list-icon>{{i+1}}</div>
+     <div mat-line>{{note.post_title}}</div>
+    <div mat-line>{{note.postBody}}</div>
+    <div mat-line> {{note.createdAt | date}} </div>
+  </mat-list-item>
+</mat-list>
+  </div>
+</div>

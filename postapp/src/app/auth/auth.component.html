@@ -1,0 +1,97 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Angular App</li>
+  </ol>
+</nav>
+
+
+<div class="container">
+  <nav ngbNav #nav="ngbNav"   class="nav-tabs">
+    <ng-container [ngbNavItem]="1" >
+      <a ngbNavLink>Login</a>
+      <ng-template ngbNavContent>
+      <form class="example-form" [formGroup]="login">
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Email</mat-label>
+          <input type="email" matInput formControlName="email" required [errorStateMatcher]="matcher"
+            placeholder="Ex. pat@example.com">
+
+          <mat-error *ngIf="loginFormCntrl.email.hasError('email') && !loginFormCntrl.email.hasError('required')">
+            Please enter a valid email address
+          </mat-error>
+          <mat-error *ngIf="loginFormCntrl.email.hasError('required')">
+            Email is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Enter your password</mat-label>
+          <input formControlName="password" required [errorStateMatcher]="matcher" matInput
+            [type]="hidePasswordLogin ? 'password' : 'text'">
+          <button mat-icon-button matSuffix (click)="hidePasswordLogin = !hidePasswordLogin"
+            [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePasswordLogin" type="button">
+            <mat-icon>{{hidePasswordLogin ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginFormCntrl.password.hasError('required')">
+            password is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+
+        <button mat-button (click)="loginUser()" color="primary">LOGIN</button>
+      </form>
+      </ng-template>
+    </ng-container>
+    <ng-container [ngbNavItem]="2">
+      <a ngbNavLink>Sign Up</a>
+      <ng-template ngbNavContent>
+      <form class="example-form" [formGroup]="signUp">
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Email</mat-label>
+          <input type="email" matInput formControlName="email" required [errorStateMatcher]="matcher"
+            placeholder="Ex. pat@example.com">
+
+          <mat-error *ngIf="signUpFormCntrl.email.hasError('email') && !signUpFormCntrl.email.hasError('required')">
+            Please enter a valid email address
+          </mat-error>
+          <mat-error *ngIf="signUpFormCntrl.email.hasError('required')">
+            Email is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Name</mat-label>
+          <input type="text" matInput formControlName="name" required [errorStateMatcher]="matcher"
+            placeholder="John Deo">
+          <mat-error *ngIf="signUpFormCntrl.name.hasError('required')">
+            Name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Enter your password</mat-label>
+          <input formControlName="password" required [errorStateMatcher]="matcher" matInput [type]="hidePasswordSignUp1 ? 'password' : 'text'">
+          <button mat-icon-button matSuffix (click)="hidePasswordSignUp1 = !hidePasswordSignUp1" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hidePasswordSignUp1" type="button">
+            <mat-icon>{{hidePasswordSignUp1 ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="signUpFormCntrl.password.hasError('required')">
+            password is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Enter your password</mat-label>
+          <input formControlName="confirm_password" required matInput [errorStateMatcher]="errorMatcher" [type]="hidePasswordSignUp2 ? 'password' : 'text'">
+          <button mat-icon-button matSuffix type="button" (click)="hidePasswordSignUp2 = !hidePasswordSignUp2"
+            [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePasswordSignUp2">
+            <mat-icon>{{hidePasswordSignUp2 ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="signUp.errors?.invalid">
+            Password must <strong>match.</strong>
+          </mat-error>
+        </mat-form-field>
+<button mat-button (click)="signUpUser()" color="primary">SUBMIT</button>
+      </form>
+      </ng-template>
+    </ng-container>
+  </nav>
+
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+</div>

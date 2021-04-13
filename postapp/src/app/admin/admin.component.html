@@ -1,0 +1,28 @@
+<app-header></app-header>
+<div>
+  <div class="row">
+    <div class="col-6">
+<h1>User</h1>
+<mat-selection-list #shoes [multiple]="false">
+  <mat-list-option (click)="getUserPostList(user._id)" *ngFor="let user of userList" >
+    <div mat-line>{{user.name}}</div>
+    <div mat-line>{{user.email}}</div>
+  </mat-list-option>
+</mat-selection-list>
+    </div>
+    <div class="col-6">
+      <h1>Post</h1>
+      <mat-spinner *ngIf="loading"></mat-spinner>
+      <p *ngIf="!post || (post.lenght===0)">NO POST YET</p>
+      <p *ngIf="post?.length===0">NO POST YET</p>
+
+      <mat-selection-list *ngIf="!loading"  #shoes [multiple]="false">
+        <mat-list-option *ngFor="let user of post">
+          <div mat-line>{{user.post_title}}</div>
+          <div mat-line>{{user.postBody}}</div>
+          <div mat-line>{{user.createdAt | date}}</div>
+        </mat-list-option>
+      </mat-selection-list>
+    </div>
+  </div>
+</div>
